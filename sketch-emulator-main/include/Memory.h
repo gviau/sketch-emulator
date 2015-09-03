@@ -15,10 +15,10 @@ public:
     void WriteShortToAddress(unsigned short address, unsigned short value);
 
     void Read1ByteFromMem(unsigned short address, unsigned char& byte) const;
-    void Read2BytesFromMem(unsigned short address, unsigned char& lsb, unsigned char& msb) const;
+    void Read2BytesFromMem(unsigned short address, unsigned char& msb, unsigned char& lsb) const;
 
-    unsigned short Convert2BytesToShort(unsigned char lsb, unsigned char msb) const;
-    void ConvertShortTo2Bytes(unsigned short value, unsigned char& lsb, unsigned char& msb) const;
+    unsigned short Convert2BytesToShort(unsigned char msb, unsigned char lsb) const;
+    void ConvertShortTo2Bytes(unsigned short value, unsigned char& msb, unsigned char& lsb) const;
 
 private:
     unsigned char* m_RomBank;

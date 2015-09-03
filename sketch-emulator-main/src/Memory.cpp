@@ -53,7 +53,7 @@ void Memory::Read1ByteFromMem(unsigned short address, unsigned char& byte) const
     byte = memoryToReadFrom[relativeAddress];
 }
 
-void Memory::Read2BytesFromMem(unsigned short address, unsigned char& lsb, unsigned char& msb) const
+void Memory::Read2BytesFromMem(unsigned short address, unsigned char& msb, unsigned char& lsb) const
 {
     unsigned short relativeAddress = 0;
     unsigned char* memoryToReadFrom = GetMemBankFromAddress(address, relativeAddress);
@@ -62,13 +62,13 @@ void Memory::Read2BytesFromMem(unsigned short address, unsigned char& lsb, unsig
     msb = memoryToReadFrom[relativeAddress + 1];
 }
 
-unsigned short Memory::Convert2BytesToShort(unsigned char lsb, unsigned char msb) const
+unsigned short Memory::Convert2BytesToShort(unsigned char msb, unsigned char lsb) const
 {
     unsigned short value = ( (unsigned short)lsb | ((unsigned short)msb << 8) );
     return value;
 }
 
-void Memory::ConvertShortTo2Bytes(unsigned short value, unsigned char& lsb, unsigned char& msb) const
+void Memory::ConvertShortTo2Bytes(unsigned short value, unsigned char& msb, unsigned char& lsb) const
 {
     lsb = (unsigned char)(value & 0xFF);
     msb = (unsigned char)( (value & 0xFF00) >> 8);
