@@ -188,6 +188,40 @@ CPU::CPU()
     m_Opcodes[0x9D] = &CPU::sbc_a_l;
     m_Opcodes[0x9E] = &CPU::sbc_a_mem_hl;
     m_Opcodes[0x9F] = &CPU::sbc_a_a;
+
+    m_Opcodes[0xA0] = &CPU::and_b;
+    m_Opcodes[0xA1] = &CPU::and_c;
+    m_Opcodes[0xA2] = &CPU::and_d;
+    m_Opcodes[0xA3] = &CPU::and_e;
+    m_Opcodes[0xA4] = &CPU::and_h;
+    m_Opcodes[0xA5] = &CPU::and_l;
+    m_Opcodes[0xA6] = &CPU::and_mem_hl;
+    m_Opcodes[0xA7] = &CPU::and_a;
+    m_Opcodes[0xA8] = &CPU::xor_b;
+    m_Opcodes[0xA9] = &CPU::xor_c;
+    m_Opcodes[0xAA] = &CPU::xor_d;
+    m_Opcodes[0xAB] = &CPU::xor_e;
+    m_Opcodes[0xAC] = &CPU::xor_h;
+    m_Opcodes[0xAD] = &CPU::xor_l;
+    m_Opcodes[0xAE] = &CPU::xor_mem_hl;
+    m_Opcodes[0xAF] = &CPU::xor_a;
+
+    m_Opcodes[0xB0] = &CPU::or_b;
+    m_Opcodes[0xB1] = &CPU::or_c;
+    m_Opcodes[0xB2] = &CPU::or_d;
+    m_Opcodes[0xB3] = &CPU::or_e;
+    m_Opcodes[0xB4] = &CPU::or_h;
+    m_Opcodes[0xB5] = &CPU::or_l;
+    m_Opcodes[0xB6] = &CPU::or_mem_hl;
+    m_Opcodes[0xB7] = &CPU::or_a;
+    m_Opcodes[0xB8] = &CPU::cp_b;
+    m_Opcodes[0xB9] = &CPU::cp_c;
+    m_Opcodes[0xBA] = &CPU::cp_d;
+    m_Opcodes[0xBB] = &CPU::cp_e;
+    m_Opcodes[0xBC] = &CPU::cp_h;
+    m_Opcodes[0xBD] = &CPU::cp_l;
+    m_Opcodes[0xBE] = &CPU::cp_mem_hl;
+    m_Opcodes[0xBF] = &CPU::cp_a;
 }
 
 void CPU::Initialize()
@@ -895,6 +929,80 @@ int CPU::sbc_a_mem_hl()
     return 8;
 }
 
+// Yup
+#define AND_REG(reg, m) int CPU::and_##reg() { return AndReg(m_##m); }
+#define XOR_REG(reg, m) int CPU::xor_##reg() { return XorReg(m_##m); }
+#define OR_REG(reg, m) int CPU::or_##reg() { return OrReg(m_##m); }
+#define CP_REG(reg, m) int CPU::cp_##reg() { return CompareReg(m_##m); }
+
+AND_REG(b, B)
+AND_REG(c, C)
+AND_REG(d, D)
+AND_REG(e, E)
+AND_REG(h, H)
+AND_REG(l, L)
+AND_REG(a, A)
+
+XOR_REG(b, B)
+XOR_REG(c, C)
+XOR_REG(d, D)
+XOR_REG(e, E)
+XOR_REG(h, H)
+XOR_REG(l, L)
+XOR_REG(a, A)
+
+OR_REG(b, B)
+OR_REG(c, C)
+OR_REG(d, D)
+OR_REG(e, E)
+OR_REG(h, H)
+OR_REG(l, L)
+OR_REG(a, A)
+
+CP_REG(b, B)
+CP_REG(c, C)
+CP_REG(d, D)
+CP_REG(e, E)
+CP_REG(h, H)
+CP_REG(l, L)
+CP_REG(a, A)
+
+int CPU::and_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value = 0;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    return AndReg(value) + 4;
+}
+
+int CPU::xor_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value = 0;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    return XorReg(value) + 4;
+}
+
+int CPU::or_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value = 0;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    return OrReg(value) + 4;
+}
+
+int CPU::cp_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value = 0;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    return CompareReg(value) + 4;
+}
+
 void CPU::SetZeroFlag(bool value)
 {
     if (value)
@@ -1107,6 +1215,52 @@ int CPU::RotateByteRightThroughCarryFlag(unsigned char& reg)
     SetSubtractFlag(false);
     SetHalfCarryFlag(false);
     SetCarryFlag(oldBit0 > 0);
+
+    return 4;
+}
+
+int CPU::AndReg(unsigned char reg)
+{
+    m_A &= reg;
+
+    SetZeroFlag(m_A == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(true);
+    SetCarryFlag(false);
+
+    return 4;
+}
+
+int CPU::XorReg(unsigned char reg)
+{
+    m_A ^= reg;
+
+    SetZeroFlag(m_A == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(false);
+
+    return 4;
+}
+
+int CPU::OrReg(unsigned char reg)
+{
+    m_A |= reg;
+
+    SetZeroFlag(m_A == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(false);
+
+    return 4;
+}
+
+int CPU::CompareReg(unsigned char reg)
+{
+    SetZeroFlag(m_A == reg);
+    SetSubtractFlag(true);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(m_A < reg);
 
     return 4;
 }

@@ -64,6 +64,10 @@ private:
     int RotateByteRightWithCarryFlag(unsigned char& reg);
     int RotateByteLeftThroughCarryFlag(unsigned char& reg);
     int RotateByteRightThroughCarryFlag(unsigned char& msb);
+    int AndReg(unsigned char reg);
+    int XorReg(unsigned char reg);
+    int OrReg(unsigned char reg);
+    int CompareReg(unsigned char reg);
 
     int LoadD8InReg(unsigned char& reg);
     int LoadD16InReg(unsigned char& msb, unsigned char& lsb);
@@ -248,6 +252,42 @@ private:
     int sbc_a_l();
     int sbc_a_mem_hl();
     int sbc_a_a();
+
+    // 0xA0 - 0xAF
+    int and_b();
+    int and_c();
+    int and_d();
+    int and_e();
+    int and_h();
+    int and_l();
+    int and_mem_hl();
+    int and_a();
+    int xor_b();
+    int xor_c();
+    int xor_d();
+    int xor_e();
+    int xor_h();
+    int xor_l();
+    int xor_mem_hl();
+    int xor_a();
+
+    // 0xB0 - 0xBF
+    int or_b();
+    int or_c();
+    int or_d();
+    int or_e();
+    int or_h();
+    int or_l();
+    int or_mem_hl();
+    int or_a();
+    int cp_b();
+    int cp_c();
+    int cp_d();
+    int cp_e();
+    int cp_h();
+    int cp_l();
+    int cp_mem_hl();
+    int cp_a();
 };
 
 }
