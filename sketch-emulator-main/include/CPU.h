@@ -80,6 +80,15 @@ private:
     int PopShort(unsigned char& msb, unsigned char& lsb);
     int Rst(int n);
 
+    int ShiftByteLeftIntoCarry(unsigned char& reg);
+    int ShiftByteRightIntoCarryMsbNoChange(unsigned char& reg);
+    int ShiftByteRightIntoCarry(unsigned char& reg);
+    int SwapByteNibbles(unsigned char& reg);
+
+    int Bit(unsigned char bit, unsigned char reg);
+    int Res(unsigned char bit, unsigned char& reg);
+    int Set(unsigned char bit, unsigned char& reg);
+
     // Instructions. Those comes directly from http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     // 0x00 - 0x0F
     int nop();
@@ -356,6 +365,295 @@ private:
     int ei();
     int cp_d8();
     int rst_38h();
+
+    // Prefix CB opcodes
+    // 0x00 - 0x0F
+    int rlc_b();
+    int rlc_c();
+    int rlc_d();
+    int rlc_e();
+    int rlc_h();
+    int rlc_l();
+    int rlc_mem_hl();
+    int rlc_a();
+    int rrc_b();
+    int rrc_c();
+    int rrc_d();
+    int rrc_e();
+    int rrc_h();
+    int rrc_l();
+    int rrc_mem_hl();
+    int rrc_a();
+
+    // 0x10 - 0x1F
+    int rl_b();
+    int rl_c();
+    int rl_d();
+    int rl_e();
+    int rl_h();
+    int rl_l();
+    int rl_mem_hl();
+    int rl_a();
+    int rr_b();
+    int rr_c();
+    int rr_d();
+    int rr_e();
+    int rr_h();
+    int rr_l();
+    int rr_mem_hl();
+    int rr_a();
+
+    // 0x20 - 0x2F
+    int sla_b();
+    int sla_c();
+    int sla_d();
+    int sla_e();
+    int sla_h();
+    int sla_l();
+    int sla_mem_hl();
+    int sla_a();
+    int sra_b();
+    int sra_c();
+    int sra_d();
+    int sra_e();
+    int sra_h();
+    int sra_l();
+    int sra_mem_hl();
+    int sra_a();
+
+    // 0x30 - 0x3F
+    int swap_b();
+    int swap_c();
+    int swap_d();
+    int swap_e();
+    int swap_h();
+    int swap_l();
+    int swap_mem_hl();
+    int swap_a();
+    int srl_b();
+    int srl_c();
+    int srl_d();
+    int srl_e();
+    int srl_h();
+    int srl_l();
+    int srl_mem_hl();
+    int srl_a();
+
+    // 0x40 - 0x4F
+    int bit_0_b();
+    int bit_0_c();
+    int bit_0_d();
+    int bit_0_e();
+    int bit_0_h();
+    int bit_0_l();
+    int bit_0_mem_hl();
+    int bit_0_a();
+    int bit_1_b();
+    int bit_1_c();
+    int bit_1_d();
+    int bit_1_e();
+    int bit_1_h();
+    int bit_1_l();
+    int bit_1_mem_hl();
+    int bit_1_a();
+
+    // 0x50 - 0x5F
+    int bit_2_b();
+    int bit_2_c();
+    int bit_2_d();
+    int bit_2_e();
+    int bit_2_h();
+    int bit_2_l();
+    int bit_2_mem_hl();
+    int bit_2_a();
+    int bit_3_b();
+    int bit_3_c();
+    int bit_3_d();
+    int bit_3_e();
+    int bit_3_h();
+    int bit_3_l();
+    int bit_3_mem_hl();
+    int bit_3_a();
+
+    // 0x60 - 0x6F
+    int bit_4_b();
+    int bit_4_c();
+    int bit_4_d();
+    int bit_4_e();
+    int bit_4_h();
+    int bit_4_l();
+    int bit_4_mem_hl();
+    int bit_4_a();
+    int bit_5_b();
+    int bit_5_c();
+    int bit_5_d();
+    int bit_5_e();
+    int bit_5_h();
+    int bit_5_l();
+    int bit_5_mem_hl();
+    int bit_5_a();
+
+    // 0x70 - 0x7F
+    int bit_6_b();
+    int bit_6_c();
+    int bit_6_d();
+    int bit_6_e();
+    int bit_6_h();
+    int bit_6_l();
+    int bit_6_mem_hl();
+    int bit_6_a();
+    int bit_7_b();
+    int bit_7_c();
+    int bit_7_d();
+    int bit_7_e();
+    int bit_7_h();
+    int bit_7_l();
+    int bit_7_mem_hl();
+    int bit_7_a();
+
+    // 0x80 - 0x8F
+    int res_0_b();
+    int res_0_c();
+    int res_0_d();
+    int res_0_e();
+    int res_0_h();
+    int res_0_l();
+    int res_0_mem_hl();
+    int res_0_a();
+    int res_1_b();
+    int res_1_c();
+    int res_1_d();
+    int res_1_e();
+    int res_1_h();
+    int res_1_l();
+    int res_1_mem_hl();
+    int res_1_a();
+
+    // 0x90 - 0x9F
+    int res_2_b();
+    int res_2_c();
+    int res_2_d();
+    int res_2_e();
+    int res_2_h();
+    int res_2_l();
+    int res_2_mem_hl();
+    int res_2_a();
+    int res_3_b();
+    int res_3_c();
+    int res_3_d();
+    int res_3_e();
+    int res_3_h();
+    int res_3_l();
+    int res_3_mem_hl();
+    int res_3_a();
+
+    // 0xA0 - 0xAF
+    int res_4_b();
+    int res_4_c();
+    int res_4_d();
+    int res_4_e();
+    int res_4_h();
+    int res_4_l();
+    int res_4_mem_hl();
+    int res_4_a();
+    int res_5_b();
+    int res_5_c();
+    int res_5_d();
+    int res_5_e();
+    int res_5_h();
+    int res_5_l();
+    int res_5_mem_hl();
+    int res_5_a();
+
+    // 0xB0 - 0xBF
+    int res_6_b();
+    int res_6_c();
+    int res_6_d();
+    int res_6_e();
+    int res_6_h();
+    int res_6_l();
+    int res_6_mem_hl();
+    int res_6_a();
+    int res_7_b();
+    int res_7_c();
+    int res_7_d();
+    int res_7_e();
+    int res_7_h();
+    int res_7_l();
+    int res_7_mem_hl();
+    int res_7_a();
+
+    // 0xC0 - 0xCF
+    int set_0_b();
+    int set_0_c();
+    int set_0_d();
+    int set_0_e();
+    int set_0_h();
+    int set_0_l();
+    int set_0_mem_hl();
+    int set_0_a();
+    int set_1_b();
+    int set_1_c();
+    int set_1_d();
+    int set_1_e();
+    int set_1_h();
+    int set_1_l();
+    int set_1_mem_hl();
+    int set_1_a();
+
+    // 0xD0 - 0xDF
+    int set_2_b();
+    int set_2_c();
+    int set_2_d();
+    int set_2_e();
+    int set_2_h();
+    int set_2_l();
+    int set_2_mem_hl();
+    int set_2_a();
+    int set_3_b();
+    int set_3_c();
+    int set_3_d();
+    int set_3_e();
+    int set_3_h();
+    int set_3_l();
+    int set_3_mem_hl();
+    int set_3_a();
+
+    // 0xE0 - 0xEF
+    int set_4_b();
+    int set_4_c();
+    int set_4_d();
+    int set_4_e();
+    int set_4_h();
+    int set_4_l();
+    int set_4_mem_hl();
+    int set_4_a();
+    int set_5_b();
+    int set_5_c();
+    int set_5_d();
+    int set_5_e();
+    int set_5_h();
+    int set_5_l();
+    int set_5_mem_hl();
+    int set_5_a();
+
+    // 0xF0 - 0xFF
+    int set_6_b();
+    int set_6_c();
+    int set_6_d();
+    int set_6_e();
+    int set_6_h();
+    int set_6_l();
+    int set_6_mem_hl();
+    int set_6_a();
+    int set_7_b();
+    int set_7_c();
+    int set_7_d();
+    int set_7_e();
+    int set_7_h();
+    int set_7_l();
+    int set_7_mem_hl();
+    int set_7_a();
 };
 
 }

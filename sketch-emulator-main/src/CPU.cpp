@@ -281,6 +281,278 @@ CPU::CPU()
     m_Opcodes[0xFB] = &CPU::ei;
     m_Opcodes[0xFE] = &CPU::cp_d8;
     m_Opcodes[0xFF] = &CPU::rst_38h;
+
+    m_OpcodesPrefixCb[0x00] = &CPU::rlc_b;
+    m_OpcodesPrefixCb[0x01] = &CPU::rlc_c;
+    m_OpcodesPrefixCb[0x02] = &CPU::rlc_d;
+    m_OpcodesPrefixCb[0x03] = &CPU::rlc_e;
+    m_OpcodesPrefixCb[0x04] = &CPU::rlc_h;
+    m_OpcodesPrefixCb[0x05] = &CPU::rlc_l;
+    m_OpcodesPrefixCb[0x06] = &CPU::rlc_mem_hl;
+    m_OpcodesPrefixCb[0x07] = &CPU::rlc_a;
+    m_OpcodesPrefixCb[0x08] = &CPU::rrc_b;
+    m_OpcodesPrefixCb[0x09] = &CPU::rrc_c;
+    m_OpcodesPrefixCb[0x0A] = &CPU::rrc_d;
+    m_OpcodesPrefixCb[0x0B] = &CPU::rrc_e;
+    m_OpcodesPrefixCb[0x0C] = &CPU::rrc_h;
+    m_OpcodesPrefixCb[0x0D] = &CPU::rrc_l;
+    m_OpcodesPrefixCb[0x0E] = &CPU::rrc_mem_hl;
+    m_OpcodesPrefixCb[0x0F] = &CPU::rrc_a;
+
+    m_OpcodesPrefixCb[0x10] = &CPU::rl_b;
+    m_OpcodesPrefixCb[0x11] = &CPU::rl_c;
+    m_OpcodesPrefixCb[0x12] = &CPU::rl_d;
+    m_OpcodesPrefixCb[0x13] = &CPU::rl_e;
+    m_OpcodesPrefixCb[0x14] = &CPU::rl_h;
+    m_OpcodesPrefixCb[0x15] = &CPU::rl_l;
+    m_OpcodesPrefixCb[0x16] = &CPU::rl_mem_hl;
+    m_OpcodesPrefixCb[0x17] = &CPU::rl_a;
+    m_OpcodesPrefixCb[0x18] = &CPU::rr_b;
+    m_OpcodesPrefixCb[0x19] = &CPU::rr_c;
+    m_OpcodesPrefixCb[0x1A] = &CPU::rr_d;
+    m_OpcodesPrefixCb[0x1B] = &CPU::rr_e;
+    m_OpcodesPrefixCb[0x1C] = &CPU::rr_h;
+    m_OpcodesPrefixCb[0x1D] = &CPU::rr_l;
+    m_OpcodesPrefixCb[0x1E] = &CPU::rr_mem_hl;
+    m_OpcodesPrefixCb[0x1F] = &CPU::rr_a;
+
+    m_OpcodesPrefixCb[0x20] = &CPU::sla_b;
+    m_OpcodesPrefixCb[0x21] = &CPU::sla_c;
+    m_OpcodesPrefixCb[0x22] = &CPU::sla_d;
+    m_OpcodesPrefixCb[0x23] = &CPU::sla_e;
+    m_OpcodesPrefixCb[0x24] = &CPU::sla_h;
+    m_OpcodesPrefixCb[0x25] = &CPU::sla_l;
+    m_OpcodesPrefixCb[0x26] = &CPU::sla_mem_hl;
+    m_OpcodesPrefixCb[0x27] = &CPU::sla_a;
+    m_OpcodesPrefixCb[0x28] = &CPU::sra_b;
+    m_OpcodesPrefixCb[0x29] = &CPU::sra_c;
+    m_OpcodesPrefixCb[0x2A] = &CPU::sra_d;
+    m_OpcodesPrefixCb[0x2B] = &CPU::sra_e;
+    m_OpcodesPrefixCb[0x2C] = &CPU::sra_h;
+    m_OpcodesPrefixCb[0x2D] = &CPU::sra_l;
+    m_OpcodesPrefixCb[0x2E] = &CPU::sra_mem_hl;
+    m_OpcodesPrefixCb[0x2F] = &CPU::sra_a;
+
+    m_OpcodesPrefixCb[0x30] = &CPU::swap_b;
+    m_OpcodesPrefixCb[0x31] = &CPU::swap_c;
+    m_OpcodesPrefixCb[0x32] = &CPU::swap_d;
+    m_OpcodesPrefixCb[0x33] = &CPU::swap_e;
+    m_OpcodesPrefixCb[0x34] = &CPU::swap_h;
+    m_OpcodesPrefixCb[0x35] = &CPU::swap_l;
+    m_OpcodesPrefixCb[0x36] = &CPU::swap_mem_hl;
+    m_OpcodesPrefixCb[0x37] = &CPU::swap_a;
+    m_OpcodesPrefixCb[0x38] = &CPU::srl_b;
+    m_OpcodesPrefixCb[0x39] = &CPU::srl_c;
+    m_OpcodesPrefixCb[0x3A] = &CPU::srl_d;
+    m_OpcodesPrefixCb[0x3B] = &CPU::srl_e;
+    m_OpcodesPrefixCb[0x3C] = &CPU::srl_h;
+    m_OpcodesPrefixCb[0x3D] = &CPU::srl_l;
+    m_OpcodesPrefixCb[0x3E] = &CPU::srl_mem_hl;
+    m_OpcodesPrefixCb[0x3F] = &CPU::srl_a;
+
+    m_OpcodesPrefixCb[0x40] = &CPU::bit_0_b;
+    m_OpcodesPrefixCb[0x41] = &CPU::bit_0_c;
+    m_OpcodesPrefixCb[0x42] = &CPU::bit_0_d;
+    m_OpcodesPrefixCb[0x43] = &CPU::bit_0_e;
+    m_OpcodesPrefixCb[0x44] = &CPU::bit_0_h;
+    m_OpcodesPrefixCb[0x45] = &CPU::bit_0_l;
+    m_OpcodesPrefixCb[0x46] = &CPU::bit_0_mem_hl;
+    m_OpcodesPrefixCb[0x47] = &CPU::bit_0_a;
+    m_OpcodesPrefixCb[0x48] = &CPU::bit_1_b;
+    m_OpcodesPrefixCb[0x49] = &CPU::bit_1_c;
+    m_OpcodesPrefixCb[0x4A] = &CPU::bit_1_d;
+    m_OpcodesPrefixCb[0x4B] = &CPU::bit_1_e;
+    m_OpcodesPrefixCb[0x4C] = &CPU::bit_1_h;
+    m_OpcodesPrefixCb[0x4D] = &CPU::bit_1_l;
+    m_OpcodesPrefixCb[0x4E] = &CPU::bit_1_mem_hl;
+    m_OpcodesPrefixCb[0x4F] = &CPU::bit_1_a;
+
+    m_OpcodesPrefixCb[0x50] = &CPU::bit_2_b;
+    m_OpcodesPrefixCb[0x51] = &CPU::bit_2_c;
+    m_OpcodesPrefixCb[0x52] = &CPU::bit_2_d;
+    m_OpcodesPrefixCb[0x53] = &CPU::bit_2_e;
+    m_OpcodesPrefixCb[0x54] = &CPU::bit_2_h;
+    m_OpcodesPrefixCb[0x55] = &CPU::bit_2_l;
+    m_OpcodesPrefixCb[0x56] = &CPU::bit_2_mem_hl;
+    m_OpcodesPrefixCb[0x57] = &CPU::bit_2_a;
+    m_OpcodesPrefixCb[0x58] = &CPU::bit_3_b;
+    m_OpcodesPrefixCb[0x59] = &CPU::bit_3_c;
+    m_OpcodesPrefixCb[0x5A] = &CPU::bit_3_d;
+    m_OpcodesPrefixCb[0x5B] = &CPU::bit_3_e;
+    m_OpcodesPrefixCb[0x5C] = &CPU::bit_3_h;
+    m_OpcodesPrefixCb[0x5D] = &CPU::bit_3_l;
+    m_OpcodesPrefixCb[0x5E] = &CPU::bit_3_mem_hl;
+    m_OpcodesPrefixCb[0x5F] = &CPU::bit_3_a;
+
+    m_OpcodesPrefixCb[0x60] = &CPU::bit_4_b;
+    m_OpcodesPrefixCb[0x61] = &CPU::bit_4_c;
+    m_OpcodesPrefixCb[0x62] = &CPU::bit_4_d;
+    m_OpcodesPrefixCb[0x63] = &CPU::bit_4_e;
+    m_OpcodesPrefixCb[0x64] = &CPU::bit_4_h;
+    m_OpcodesPrefixCb[0x65] = &CPU::bit_4_l;
+    m_OpcodesPrefixCb[0x66] = &CPU::bit_4_mem_hl;
+    m_OpcodesPrefixCb[0x67] = &CPU::bit_4_a;
+    m_OpcodesPrefixCb[0x68] = &CPU::bit_5_b;
+    m_OpcodesPrefixCb[0x69] = &CPU::bit_5_c;
+    m_OpcodesPrefixCb[0x6A] = &CPU::bit_5_d;
+    m_OpcodesPrefixCb[0x6B] = &CPU::bit_5_e;
+    m_OpcodesPrefixCb[0x6C] = &CPU::bit_5_h;
+    m_OpcodesPrefixCb[0x6D] = &CPU::bit_5_l;
+    m_OpcodesPrefixCb[0x6E] = &CPU::bit_5_mem_hl;
+    m_OpcodesPrefixCb[0x6F] = &CPU::bit_5_a;
+
+    m_OpcodesPrefixCb[0x70] = &CPU::bit_6_b;
+    m_OpcodesPrefixCb[0x71] = &CPU::bit_6_c;
+    m_OpcodesPrefixCb[0x72] = &CPU::bit_6_d;
+    m_OpcodesPrefixCb[0x73] = &CPU::bit_6_e;
+    m_OpcodesPrefixCb[0x74] = &CPU::bit_6_h;
+    m_OpcodesPrefixCb[0x75] = &CPU::bit_6_l;
+    m_OpcodesPrefixCb[0x76] = &CPU::bit_6_mem_hl;
+    m_OpcodesPrefixCb[0x77] = &CPU::bit_6_a;
+    m_OpcodesPrefixCb[0x78] = &CPU::bit_7_b;
+    m_OpcodesPrefixCb[0x79] = &CPU::bit_7_c;
+    m_OpcodesPrefixCb[0x7A] = &CPU::bit_7_d;
+    m_OpcodesPrefixCb[0x7B] = &CPU::bit_7_e;
+    m_OpcodesPrefixCb[0x7C] = &CPU::bit_7_h;
+    m_OpcodesPrefixCb[0x7D] = &CPU::bit_7_l;
+    m_OpcodesPrefixCb[0x7E] = &CPU::bit_7_mem_hl;
+    m_OpcodesPrefixCb[0x7F] = &CPU::bit_7_a;
+
+    m_OpcodesPrefixCb[0x80] = &CPU::res_0_b;
+    m_OpcodesPrefixCb[0x81] = &CPU::res_0_c;
+    m_OpcodesPrefixCb[0x82] = &CPU::res_0_d;
+    m_OpcodesPrefixCb[0x83] = &CPU::res_0_e;
+    m_OpcodesPrefixCb[0x84] = &CPU::res_0_h;
+    m_OpcodesPrefixCb[0x85] = &CPU::res_0_l;
+    m_OpcodesPrefixCb[0x86] = &CPU::res_0_mem_hl;
+    m_OpcodesPrefixCb[0x87] = &CPU::res_0_a;
+    m_OpcodesPrefixCb[0x88] = &CPU::res_1_b;
+    m_OpcodesPrefixCb[0x89] = &CPU::res_1_c;
+    m_OpcodesPrefixCb[0x8A] = &CPU::res_1_d;
+    m_OpcodesPrefixCb[0x8B] = &CPU::res_1_e;
+    m_OpcodesPrefixCb[0x8C] = &CPU::res_1_h;
+    m_OpcodesPrefixCb[0x8D] = &CPU::res_1_l;
+    m_OpcodesPrefixCb[0x8E] = &CPU::res_1_mem_hl;
+    m_OpcodesPrefixCb[0x8F] = &CPU::res_1_a;
+
+    m_OpcodesPrefixCb[0x90] = &CPU::res_2_b;
+    m_OpcodesPrefixCb[0x91] = &CPU::res_2_c;
+    m_OpcodesPrefixCb[0x92] = &CPU::res_2_d;
+    m_OpcodesPrefixCb[0x93] = &CPU::res_2_e;
+    m_OpcodesPrefixCb[0x94] = &CPU::res_2_h;
+    m_OpcodesPrefixCb[0x95] = &CPU::res_2_l;
+    m_OpcodesPrefixCb[0x96] = &CPU::res_2_mem_hl;
+    m_OpcodesPrefixCb[0x97] = &CPU::res_2_a;
+    m_OpcodesPrefixCb[0x98] = &CPU::res_3_b;
+    m_OpcodesPrefixCb[0x99] = &CPU::res_3_c;
+    m_OpcodesPrefixCb[0x9A] = &CPU::res_3_d;
+    m_OpcodesPrefixCb[0x9B] = &CPU::res_3_e;
+    m_OpcodesPrefixCb[0x9C] = &CPU::res_3_h;
+    m_OpcodesPrefixCb[0x9D] = &CPU::res_3_l;
+    m_OpcodesPrefixCb[0x9E] = &CPU::res_3_mem_hl;
+    m_OpcodesPrefixCb[0x9F] = &CPU::res_3_a;
+
+    m_OpcodesPrefixCb[0xA0] = &CPU::res_4_b;
+    m_OpcodesPrefixCb[0xA1] = &CPU::res_4_c;
+    m_OpcodesPrefixCb[0xA2] = &CPU::res_4_d;
+    m_OpcodesPrefixCb[0xA3] = &CPU::res_4_e;
+    m_OpcodesPrefixCb[0xA4] = &CPU::res_4_h;
+    m_OpcodesPrefixCb[0xA5] = &CPU::res_4_l;
+    m_OpcodesPrefixCb[0xA6] = &CPU::res_4_mem_hl;
+    m_OpcodesPrefixCb[0xA7] = &CPU::res_4_a;
+    m_OpcodesPrefixCb[0xA8] = &CPU::res_5_b;
+    m_OpcodesPrefixCb[0xA9] = &CPU::res_5_c;
+    m_OpcodesPrefixCb[0xAA] = &CPU::res_5_d;
+    m_OpcodesPrefixCb[0xAB] = &CPU::res_5_e;
+    m_OpcodesPrefixCb[0xAC] = &CPU::res_5_h;
+    m_OpcodesPrefixCb[0xAD] = &CPU::res_5_l;
+    m_OpcodesPrefixCb[0xAE] = &CPU::res_5_mem_hl;
+    m_OpcodesPrefixCb[0xAF] = &CPU::res_5_a;
+
+    m_OpcodesPrefixCb[0xB0] = &CPU::res_6_b;
+    m_OpcodesPrefixCb[0xB1] = &CPU::res_6_c;
+    m_OpcodesPrefixCb[0xB2] = &CPU::res_6_d;
+    m_OpcodesPrefixCb[0xB3] = &CPU::res_6_e;
+    m_OpcodesPrefixCb[0xB4] = &CPU::res_6_h;
+    m_OpcodesPrefixCb[0xB5] = &CPU::res_6_l;
+    m_OpcodesPrefixCb[0xB6] = &CPU::res_6_mem_hl;
+    m_OpcodesPrefixCb[0xB7] = &CPU::res_6_a;
+    m_OpcodesPrefixCb[0xB8] = &CPU::res_7_b;
+    m_OpcodesPrefixCb[0xB9] = &CPU::res_7_c;
+    m_OpcodesPrefixCb[0xBA] = &CPU::res_7_d;
+    m_OpcodesPrefixCb[0xBB] = &CPU::res_7_e;
+    m_OpcodesPrefixCb[0xBC] = &CPU::res_7_h;
+    m_OpcodesPrefixCb[0xBD] = &CPU::res_7_l;
+    m_OpcodesPrefixCb[0xBE] = &CPU::res_7_mem_hl;
+    m_OpcodesPrefixCb[0xBF] = &CPU::res_7_a;
+
+    m_OpcodesPrefixCb[0xC0] = &CPU::set_0_b;
+    m_OpcodesPrefixCb[0xC1] = &CPU::set_0_c;
+    m_OpcodesPrefixCb[0xC2] = &CPU::set_0_d;
+    m_OpcodesPrefixCb[0xC3] = &CPU::set_0_e;
+    m_OpcodesPrefixCb[0xC4] = &CPU::set_0_h;
+    m_OpcodesPrefixCb[0xC5] = &CPU::set_0_l;
+    m_OpcodesPrefixCb[0xC6] = &CPU::set_0_mem_hl;
+    m_OpcodesPrefixCb[0xC7] = &CPU::set_0_a;
+    m_OpcodesPrefixCb[0xC8] = &CPU::set_1_b;
+    m_OpcodesPrefixCb[0xC9] = &CPU::set_1_c;
+    m_OpcodesPrefixCb[0xCA] = &CPU::set_1_d;
+    m_OpcodesPrefixCb[0xCB] = &CPU::set_1_e;
+    m_OpcodesPrefixCb[0xCC] = &CPU::set_1_h;
+    m_OpcodesPrefixCb[0xCD] = &CPU::set_1_l;
+    m_OpcodesPrefixCb[0xCE] = &CPU::set_1_mem_hl;
+    m_OpcodesPrefixCb[0xCF] = &CPU::set_1_a;
+
+    m_OpcodesPrefixCb[0xD0] = &CPU::set_2_b;
+    m_OpcodesPrefixCb[0xD1] = &CPU::set_2_c;
+    m_OpcodesPrefixCb[0xD2] = &CPU::set_2_d;
+    m_OpcodesPrefixCb[0xD3] = &CPU::set_2_e;
+    m_OpcodesPrefixCb[0xD4] = &CPU::set_2_h;
+    m_OpcodesPrefixCb[0xD5] = &CPU::set_2_l;
+    m_OpcodesPrefixCb[0xD6] = &CPU::set_2_mem_hl;
+    m_OpcodesPrefixCb[0xD7] = &CPU::set_2_a;
+    m_OpcodesPrefixCb[0xD8] = &CPU::set_3_b;
+    m_OpcodesPrefixCb[0xD9] = &CPU::set_3_c;
+    m_OpcodesPrefixCb[0xDA] = &CPU::set_3_d;
+    m_OpcodesPrefixCb[0xDB] = &CPU::set_3_e;
+    m_OpcodesPrefixCb[0xDC] = &CPU::set_3_h;
+    m_OpcodesPrefixCb[0xDD] = &CPU::set_3_l;
+    m_OpcodesPrefixCb[0xDE] = &CPU::set_3_mem_hl;
+    m_OpcodesPrefixCb[0xDF] = &CPU::set_3_a;
+
+    m_OpcodesPrefixCb[0xE0] = &CPU::set_4_b;
+    m_OpcodesPrefixCb[0xE1] = &CPU::set_4_c;
+    m_OpcodesPrefixCb[0xE2] = &CPU::set_4_d;
+    m_OpcodesPrefixCb[0xE3] = &CPU::set_4_e;
+    m_OpcodesPrefixCb[0xE4] = &CPU::set_4_h;
+    m_OpcodesPrefixCb[0xE5] = &CPU::set_4_l;
+    m_OpcodesPrefixCb[0xE6] = &CPU::set_4_mem_hl;
+    m_OpcodesPrefixCb[0xE7] = &CPU::set_4_a;
+    m_OpcodesPrefixCb[0xE8] = &CPU::set_5_b;
+    m_OpcodesPrefixCb[0xE9] = &CPU::set_5_c;
+    m_OpcodesPrefixCb[0xEA] = &CPU::set_5_d;
+    m_OpcodesPrefixCb[0xEB] = &CPU::set_5_e;
+    m_OpcodesPrefixCb[0xEC] = &CPU::set_5_h;
+    m_OpcodesPrefixCb[0xED] = &CPU::set_5_l;
+    m_OpcodesPrefixCb[0xEE] = &CPU::set_5_mem_hl;
+    m_OpcodesPrefixCb[0xEF] = &CPU::set_5_a;
+
+    m_OpcodesPrefixCb[0xF0] = &CPU::set_6_b;
+    m_OpcodesPrefixCb[0xF1] = &CPU::set_6_c;
+    m_OpcodesPrefixCb[0xF2] = &CPU::set_6_d;
+    m_OpcodesPrefixCb[0xF3] = &CPU::set_6_e;
+    m_OpcodesPrefixCb[0xF4] = &CPU::set_6_h;
+    m_OpcodesPrefixCb[0xF5] = &CPU::set_6_l;
+    m_OpcodesPrefixCb[0xF6] = &CPU::set_6_mem_hl;
+    m_OpcodesPrefixCb[0xF7] = &CPU::set_6_a;
+    m_OpcodesPrefixCb[0xF8] = &CPU::set_7_b;
+    m_OpcodesPrefixCb[0xF9] = &CPU::set_7_c;
+    m_OpcodesPrefixCb[0xFA] = &CPU::set_7_d;
+    m_OpcodesPrefixCb[0xFB] = &CPU::set_7_e;
+    m_OpcodesPrefixCb[0xFC] = &CPU::set_7_h;
+    m_OpcodesPrefixCb[0xFD] = &CPU::set_7_l;
+    m_OpcodesPrefixCb[0xFE] = &CPU::set_7_mem_hl;
+    m_OpcodesPrefixCb[0xFF] = &CPU::set_7_a;
 }
 
 void CPU::Initialize()
@@ -1591,6 +1863,432 @@ int CPU::rst_38h()
     return Rst(0x38);
 }
 
+// Again, no chance that I'm typying all that
+#define RLC_REG(reg, m) int CPU::rlc_##reg() { return RotateByteLeftWithCarryFlag(m_##m) + 4; }
+#define RRC_REG(reg, m) int CPU::rrc_##reg() { return RotateByteRightWithCarryFlag(m_##m) + 4; }
+#define RL_REG(reg, m) int CPU::rl_##reg() { return RotateByteLeftThroughCarryFlag(m_##m) + 4; }
+#define RR_REG(reg, m) int CPU::rr_##reg() { return RotateByteRightThroughCarryFlag(m_##m) + 4; }
+#define SLA_REG(reg, m) int CPU::sla_##reg() { return ShiftByteLeftIntoCarry(m_##m); }
+#define SRA_REG(reg, m) int CPU::sra_##reg() { return ShiftByteRightIntoCarryMsbNoChange(m_##m); }
+#define SWAP_REG(reg, m) int CPU::swap_##reg() { return SwapByteNibbles(m_##m); }
+#define SRL_REG(reg, m) int CPU::srl_##reg() { return ShiftByteRightIntoCarry(m_##m); }
+
+RLC_REG(b, B)
+RLC_REG(c, C)
+RLC_REG(d, D)
+RLC_REG(e, E)
+RLC_REG(h, H)
+RLC_REG(l, L)
+RLC_REG(a, A)
+
+RRC_REG(b, B)
+RRC_REG(c, C)
+RRC_REG(d, D)
+RRC_REG(e, E)
+RRC_REG(h, H)
+RRC_REG(l, L)
+RRC_REG(a, A)
+
+RL_REG(b, B)
+RL_REG(c, C)
+RL_REG(d, D)
+RL_REG(e, E)
+RL_REG(h, H)
+RL_REG(l, L)
+RL_REG(a, A)
+
+RR_REG(b, B)
+RR_REG(c, C)
+RR_REG(d, D)
+RR_REG(e, E)
+RR_REG(h, H)
+RR_REG(l, L)
+RR_REG(a, A)
+
+SLA_REG(b, B)
+SLA_REG(c, C)
+SLA_REG(d, D)
+SLA_REG(e, E)
+SLA_REG(h, H)
+SLA_REG(l, L)
+SLA_REG(a, A)
+
+SRA_REG(b, B)
+SRA_REG(c, C)
+SRA_REG(d, D)
+SRA_REG(e, E)
+SRA_REG(h, H)
+SRA_REG(l, L)
+SRA_REG(a, A)
+
+SWAP_REG(b, B)
+SWAP_REG(c, C)
+SWAP_REG(d, D)
+SWAP_REG(e, E)
+SWAP_REG(h, H)
+SWAP_REG(l, L)
+SWAP_REG(a, A)
+
+SRL_REG(b, B)
+SRL_REG(c, C)
+SRL_REG(d, D)
+SRL_REG(e, E)
+SRL_REG(h, H)
+SRL_REG(l, L)
+SRL_REG(a, A)
+
+int CPU::rlc_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    RotateByteLeftWithCarryFlag(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::rrc_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    RotateByteRightWithCarryFlag(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::rl_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    RotateByteLeftThroughCarryFlag(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::rr_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    RotateByteRightThroughCarryFlag(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::sla_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    ShiftByteLeftIntoCarry(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::sra_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    ShiftByteRightIntoCarryMsbNoChange(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::swap_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    SwapByteNibbles(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+int CPU::srl_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char value;
+    m_Memory.Read1ByteFromMem(HL, value);
+
+    ShiftByteRightIntoCarry(value);
+
+    m_Memory.WriteByteToAddress(HL, value);
+
+    return 16;
+}
+
+// Saves typying
+#define BIT_0(reg, m) int CPU::bit_0_##reg() { return Bit(0, m_##m); }
+#define BIT_1(reg, m) int CPU::bit_1_##reg() { return Bit(1, m_##m); }
+#define BIT_2(reg, m) int CPU::bit_2_##reg() { return Bit(2, m_##m); }
+#define BIT_3(reg, m) int CPU::bit_3_##reg() { return Bit(3, m_##m); }
+#define BIT_4(reg, m) int CPU::bit_4_##reg() { return Bit(4, m_##m); }
+#define BIT_5(reg, m) int CPU::bit_5_##reg() { return Bit(5, m_##m); }
+#define BIT_6(reg, m) int CPU::bit_6_##reg() { return Bit(6, m_##m); }
+#define BIT_7(reg, m) int CPU::bit_7_##reg() { return Bit(7, m_##m); }
+
+#define RES_0(reg, m) int CPU::res_0_##reg() { return Res(0, m_##m); }
+#define RES_1(reg, m) int CPU::res_1_##reg() { return Res(1, m_##m); }
+#define RES_2(reg, m) int CPU::res_2_##reg() { return Res(2, m_##m); }
+#define RES_3(reg, m) int CPU::res_3_##reg() { return Res(3, m_##m); }
+#define RES_4(reg, m) int CPU::res_4_##reg() { return Res(4, m_##m); }
+#define RES_5(reg, m) int CPU::res_5_##reg() { return Res(5, m_##m); }
+#define RES_6(reg, m) int CPU::res_6_##reg() { return Res(6, m_##m); }
+#define RES_7(reg, m) int CPU::res_7_##reg() { return Res(7, m_##m); }
+
+#define SET_0(reg, m) int CPU::set_0_##reg() { return Set(0, m_##m); }
+#define SET_1(reg, m) int CPU::set_1_##reg() { return Set(1, m_##m); }
+#define SET_2(reg, m) int CPU::set_2_##reg() { return Set(2, m_##m); }
+#define SET_3(reg, m) int CPU::set_3_##reg() { return Set(3, m_##m); }
+#define SET_4(reg, m) int CPU::set_4_##reg() { return Set(4, m_##m); }
+#define SET_5(reg, m) int CPU::set_5_##reg() { return Set(5, m_##m); }
+#define SET_6(reg, m) int CPU::set_6_##reg() { return Set(6, m_##m); }
+#define SET_7(reg, m) int CPU::set_7_##reg() { return Set(7, m_##m); }
+
+BIT_0(b, B) 
+BIT_0(c, C)
+BIT_0(d, D)
+BIT_0(e, E)
+BIT_0(h, H)
+BIT_0(l, L)
+BIT_0(a, A)
+
+BIT_1(b, B)
+BIT_1(c, C)
+BIT_1(d, D)
+BIT_1(e, E)
+BIT_1(h, H)
+BIT_1(l, L)
+BIT_1(a, A)
+
+BIT_2(b, B)
+BIT_2(c, C)
+BIT_2(d, D)
+BIT_2(e, E)
+BIT_2(h, H)
+BIT_2(l, L)
+BIT_2(a, A)
+
+BIT_3(b, B)
+BIT_3(c, C)
+BIT_3(d, D)
+BIT_3(e, E)
+BIT_3(h, H)
+BIT_3(l, L)
+BIT_3(a, A)
+
+BIT_4(b, B)
+BIT_4(c, C)
+BIT_4(d, D)
+BIT_4(e, E)
+BIT_4(h, H)
+BIT_4(l, L)
+BIT_4(a, A)
+
+BIT_5(b, B)
+BIT_5(c, C)
+BIT_5(d, D)
+BIT_5(e, E)
+BIT_5(h, H)
+BIT_5(l, L)
+BIT_5(a, A)
+
+BIT_6(b, B)
+BIT_6(c, C)
+BIT_6(d, D)
+BIT_6(e, E)
+BIT_6(h, H)
+BIT_6(l, L)
+BIT_6(a, A)
+
+BIT_7(b, B)
+BIT_7(c, C)
+BIT_7(d, D)
+BIT_7(e, E)
+BIT_7(h, H)
+BIT_7(l, L)
+BIT_7(a, A)
+
+RES_0(b, B) 
+RES_0(c, C)
+RES_0(d, D)
+RES_0(e, E)
+RES_0(h, H)
+RES_0(l, L)
+RES_0(a, A)
+
+RES_1(b, B)
+RES_1(c, C)
+RES_1(d, D)
+RES_1(e, E)
+RES_1(h, H)
+RES_1(l, L)
+RES_1(a, A)
+
+RES_2(b, B)
+RES_2(c, C)
+RES_2(d, D)
+RES_2(e, E)
+RES_2(h, H)
+RES_2(l, L)
+RES_2(a, A)
+
+RES_3(b, B)
+RES_3(c, C)
+RES_3(d, D)
+RES_3(e, E)
+RES_3(h, H)
+RES_3(l, L)
+RES_3(a, A)
+
+RES_4(b, B)
+RES_4(c, C)
+RES_4(d, D)
+RES_4(e, E)
+RES_4(h, H)
+RES_4(l, L)
+RES_4(a, A)
+
+RES_5(b, B)
+RES_5(c, C)
+RES_5(d, D)
+RES_5(e, E)
+RES_5(h, H)
+RES_5(l, L)
+RES_5(a, A)
+
+RES_6(b, B)
+RES_6(c, C)
+RES_6(d, D)
+RES_6(e, E)
+RES_6(h, H)
+RES_6(l, L)
+RES_6(a, A)
+
+RES_7(b, B)
+RES_7(c, C)
+RES_7(d, D)
+RES_7(e, E)
+RES_7(h, H)
+RES_7(l, L)
+RES_7(a, A)
+
+SET_0(b, B) 
+SET_0(c, C)
+SET_0(d, D)
+SET_0(e, E)
+SET_0(h, H)
+SET_0(l, L)
+SET_0(a, A)
+
+SET_1(b, B)
+SET_1(c, C)
+SET_1(d, D)
+SET_1(e, E)
+SET_1(h, H)
+SET_1(l, L)
+SET_1(a, A)
+
+SET_2(b, B)
+SET_2(c, C)
+SET_2(d, D)
+SET_2(e, E)
+SET_2(h, H)
+SET_2(l, L)
+SET_2(a, A)
+
+SET_3(b, B)
+SET_3(c, C)
+SET_3(d, D)
+SET_3(e, E)
+SET_3(h, H)
+SET_3(l, L)
+SET_3(a, A)
+
+SET_4(b, B)
+SET_4(c, C)
+SET_4(d, D)
+SET_4(e, E)
+SET_4(h, H)
+SET_4(l, L)
+SET_4(a, A)
+
+SET_5(b, B)
+SET_5(c, C)
+SET_5(d, D)
+SET_5(e, E)
+SET_5(h, H)
+SET_5(l, L)
+SET_5(a, A)
+
+SET_6(b, B)
+SET_6(c, C)
+SET_6(d, D)
+SET_6(e, E)
+SET_6(h, H)
+SET_6(l, L)
+SET_6(a, A)
+
+SET_7(b, B)
+SET_7(c, C)
+SET_7(d, D)
+SET_7(e, E)
+SET_7(h, H)
+SET_7(l, L)
+SET_7(a, A)
+
+// Finally, the mem opcode variants for the last ones
+int CPU::bit_0_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(0, value); return 16; }
+int CPU::bit_1_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(1, value); return 16; }
+int CPU::bit_2_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(2, value); return 16; }
+int CPU::bit_3_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(3, value); return 16; }
+int CPU::bit_4_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(4, value); return 16; }
+int CPU::bit_5_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(5, value); return 16; }
+int CPU::bit_6_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(6, value); return 16; }
+int CPU::bit_7_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Bit(7, value); return 16; }
+
+int CPU::res_0_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(0, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_1_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(1, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_2_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(2, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_3_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(3, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_4_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(4, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_5_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(5, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_6_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(6, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::res_7_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Res(7, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+
+int CPU::set_0_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(0, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_1_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(1, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_2_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(2, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_3_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(3, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_4_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(4, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_5_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(5, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_6_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(6, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+int CPU::set_7_mem_hl() { unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L); unsigned char value; m_Memory.Read1ByteFromMem(HL, value); Set(7, value); m_Memory.WriteByteToAddress(HL, value); return 16; }
+
 void CPU::SetZeroFlag(bool value)
 {
     if (value)
@@ -1754,6 +2452,7 @@ int CPU::RotateByteLeftWithCarryFlag(unsigned char& reg)
     unsigned char oldBit7 = (reg & 0x80);
 
     reg <<= 1;
+    reg |= ((oldBit7 > 0) ? 1 : 0);
 
     SetZeroFlag(reg == 0);
     SetSubtractFlag(false);
@@ -1768,6 +2467,7 @@ int CPU::RotateByteRightWithCarryFlag(unsigned char& reg)
     unsigned char oldBit0 = (reg & 0x01);
 
     reg >>= 1;
+    reg |= ((oldBit0 > 0) ? 0x80 : 0);
 
     SetZeroFlag(reg == 0);
     SetSubtractFlag(false);
@@ -1900,6 +2600,100 @@ int CPU::Rst(int n)
     m_PC = n;
 
     return 32;
+}
+
+int CPU::ShiftByteLeftIntoCarry(unsigned char& reg)
+{
+    unsigned char oldBit7 = (reg & 0x80);
+
+    reg <<= 1;
+    
+    SetZeroFlag(reg == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(oldBit7 > 0);
+
+    return 8;
+}
+
+int CPU::ShiftByteRightIntoCarryMsbNoChange(unsigned char& reg)
+{
+    unsigned char oldBit0 = (reg & 0x01);
+    unsigned char oldBit7 = (reg & 0x80);
+
+    reg >>= 1;
+    reg |= oldBit7;
+    
+    SetZeroFlag(reg == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(oldBit0 > 0);
+
+    return 8;
+}
+
+int CPU::ShiftByteRightIntoCarry(unsigned char& reg)
+{
+    unsigned char oldBit0 = (reg & 0x01);
+
+    reg >>= 1;
+    
+    SetZeroFlag(reg == 0);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(false);
+    SetCarryFlag(oldBit0 > 0);
+
+    return 8;
+}
+
+int CPU::SwapByteNibbles(unsigned char& reg)
+{
+    unsigned char high = (reg & 0xF0);
+    unsigned char low = (reg & 0x0F);
+    reg = ((low << 4) | high);
+
+    return 8;
+}
+
+int CPU::Bit(unsigned char bit, unsigned char reg)
+{
+    unsigned char mask = 1;
+    if (bit > 0)
+    {
+        mask <<= 1;
+    }
+
+    SetZeroFlag( (reg & mask) == 0 );
+    SetSubtractFlag(false);
+    SetHalfCarryFlag(true);
+
+    return 8;
+}
+
+int CPU::Res(unsigned char bit, unsigned char& reg)
+{
+    unsigned char mask = 1;
+    if (bit > 0)
+    {
+        mask <<= 1;
+    }
+
+    reg &= ~mask;
+
+    return 8;
+}
+
+int CPU::Set(unsigned char bit, unsigned char& reg)
+{
+    unsigned char mask = 1;
+    if (bit > 0)
+    {
+        mask <<= 1;
+    }
+
+    reg |= mask;
+
+    return 8;
 }
 
 }
