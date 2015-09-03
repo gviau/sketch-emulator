@@ -15,6 +15,7 @@ public:
 
     bool IsCPUStopped() const { return m_IsCPUStopped; }
     bool IsHalted() const { return m_IsHalted; }
+    bool AreInterruptsEnabled() const { return m_AreInterruptsEnabled; }
 
 private:
     typedef int (CPU::*Instruction) ();
@@ -35,6 +36,9 @@ private:
 
     bool m_IsCPUStopped;
     bool m_IsHalted;
+    bool m_AreInterruptsEnabled;
+    bool m_ShouldInterruptsBeDisabled;
+    bool m_ShouldInterruptsBeEnabled;
 
     // Opcodes mapping
     Instruction m_Opcodes[256];
@@ -71,6 +75,10 @@ private:
 
     int LoadD8InReg(unsigned char& reg);
     int LoadD16InReg(unsigned char& msb, unsigned char& lsb);
+
+    int PushShort(unsigned char msb, unsigned char lsb);
+    int PopShort(unsigned char& msb, unsigned char& lsb);
+    int Rst(int n);
 
     // Instructions. Those comes directly from http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     // 0x00 - 0x0F
@@ -288,6 +296,66 @@ private:
     int cp_l();
     int cp_mem_hl();
     int cp_a();
+
+    // 0xC0 - 0xCF
+    int ret_nz();
+    int pop_bc();
+    int jp_nz_a16();
+    int jp_a16();
+    int call_nz_a16();
+    int push_bc();
+    int add_a_d8();
+    int rst_00h();
+    int ret_z();
+    int ret();
+    int jp_z_a16();
+    int call_z_a16();
+    int call_a16();
+    int adc_a_d8();
+    int rst_08h();
+
+    // 0xD0 - 0xDF
+    int ret_nc();
+    int pop_de();
+    int jp_nc_a16();
+    int call_nc_a16();
+    int push_de();
+    int sub_d8();
+    int rst_10h();
+    int ret_c();
+    int reti();
+    int jp_c_a16();
+    int call_c_a16();
+    int sbc_a_d8();
+    int rst_18h();
+
+    // 0xE0 - 0xEF
+    int ldh_mem_a8_a();
+    int pop_hl();
+    int ld_mem_c_a();
+    int push_hl();
+    int and_d8();
+    int rst_20h();
+    int add_sp_r8();
+    int jp_mem_hl();
+    int ld_mem_a16_a();
+    int xor_d8();
+    int rst_28h();
+
+    // 0xF0 - 0xFF
+    int ldh_a_mem_a8();
+    int pop_af();
+    int ld_a_mem_c();
+    int di();
+    int push_af();
+    int or_d8();
+    int rst_30h();
+    int ld_hl_sp_r8();
+    int ld_sp_hl();
+    int ld_a_mem_a16();
+    int ei();
+    int cp_d8();
+    int rst_38h();
 };
 
 }

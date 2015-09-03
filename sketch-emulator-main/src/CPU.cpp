@@ -18,6 +18,9 @@ CPU::CPU()
     , m_PC(0)
     , m_IsCPUStopped(false)
     , m_IsHalted(false)
+    , m_AreInterruptsEnabled(true)
+    , m_ShouldInterruptsBeDisabled(false)
+    , m_ShouldInterruptsBeEnabled(false)
 {
     m_Opcodes[0x00] = &CPU::nop;
     m_Opcodes[0x01] = &CPU::ld_bc_d16;
@@ -222,6 +225,62 @@ CPU::CPU()
     m_Opcodes[0xBD] = &CPU::cp_l;
     m_Opcodes[0xBE] = &CPU::cp_mem_hl;
     m_Opcodes[0xBF] = &CPU::cp_a;
+
+    m_Opcodes[0xC0] = &CPU::ret_nz;
+    m_Opcodes[0xC1] = &CPU::pop_bc;
+    m_Opcodes[0xC2] = &CPU::jp_nz_a16;
+    m_Opcodes[0xC3] = &CPU::jp_a16;
+    m_Opcodes[0xC4] = &CPU::call_nz_a16;
+    m_Opcodes[0xC5] = &CPU::push_bc;
+    m_Opcodes[0xC6] = &CPU::add_a_d8;
+    m_Opcodes[0xC7] = &CPU::rst_00h;
+    m_Opcodes[0xC8] = &CPU::ret_z;
+    m_Opcodes[0xC9] = &CPU::ret;
+    m_Opcodes[0xCA] = &CPU::jp_z_a16;
+    m_Opcodes[0xCC] = &CPU::call_z_a16;
+    m_Opcodes[0xCD] = &CPU::call_a16;
+    m_Opcodes[0xCE] = &CPU::adc_a_d8;
+    m_Opcodes[0xCF] = &CPU::rst_08h;
+
+    m_Opcodes[0xD0] = &CPU::ret_nc;
+    m_Opcodes[0xD1] = &CPU::pop_de;
+    m_Opcodes[0xD2] = &CPU::jp_nc_a16;
+    m_Opcodes[0xD4] = &CPU::call_nc_a16;
+    m_Opcodes[0xD5] = &CPU::push_de;
+    m_Opcodes[0xD6] = &CPU::sub_d8;
+    m_Opcodes[0xD7] = &CPU::rst_10h;
+    m_Opcodes[0xD8] = &CPU::ret_c;
+    m_Opcodes[0xD9] = &CPU::reti;
+    m_Opcodes[0xDA] = &CPU::jp_c_a16;
+    m_Opcodes[0xDC] = &CPU::call_c_a16;
+    m_Opcodes[0xDE] = &CPU::sbc_a_d8;
+    m_Opcodes[0xDF] = &CPU::rst_18h;
+
+    m_Opcodes[0xE0] = &CPU::ldh_mem_a8_a;
+    m_Opcodes[0xE1] = &CPU::pop_hl;
+    m_Opcodes[0xE2] = &CPU::ld_mem_c_a;
+    m_Opcodes[0xE5] = &CPU::push_hl;
+    m_Opcodes[0xE6] = &CPU::and_d8;
+    m_Opcodes[0xE7] = &CPU::rst_20h;
+    m_Opcodes[0xE8] = &CPU::add_sp_r8;
+    m_Opcodes[0xE9] = &CPU::jp_mem_hl;
+    m_Opcodes[0xEA] = &CPU::ld_mem_a16_a;
+    m_Opcodes[0xEE] = &CPU::xor_d8;
+    m_Opcodes[0xEF] = &CPU::rst_28h;
+
+    m_Opcodes[0xF0] = &CPU::ldh_a_mem_a8;
+    m_Opcodes[0xF1] = &CPU::pop_af;
+    m_Opcodes[0xF2] = &CPU::ld_a_mem_c;
+    m_Opcodes[0xF3] = &CPU::di;
+    m_Opcodes[0xF5] = &CPU::push_af;
+    m_Opcodes[0xF6] = &CPU::or_d8;
+    m_Opcodes[0xF7] = &CPU::rst_30h;
+    m_Opcodes[0xF8] = &CPU::ld_hl_sp_r8;
+    m_Opcodes[0xF9] = &CPU::ld_sp_hl;
+    m_Opcodes[0xFA] = &CPU::ld_a_mem_a16;
+    m_Opcodes[0xFB] = &CPU::ei;
+    m_Opcodes[0xFE] = &CPU::cp_d8;
+    m_Opcodes[0xFF] = &CPU::rst_38h;
 }
 
 void CPU::Initialize()
@@ -231,19 +290,48 @@ void CPU::Initialize()
 
 int CPU::Step()
 {
+    bool disableInterrupts = false;
+    if (m_ShouldInterruptsBeDisabled)
+    {
+        disableInterrupts = true;
+    }
+
+    bool enableInterrupts = false;
+    if (m_ShouldInterruptsBeEnabled)
+    {
+        enableInterrupts = true;
+    }
+
     unsigned char opcode = 0;
     m_Memory.Read1ByteFromMem(m_PC, opcode);
     m_PC += 1;
 
+    int cycles = 0;
     if (opcode == 0xCB)
     {
         m_Memory.Read1ByteFromMem(m_PC, opcode);
         m_PC += 1;
 
-        return CALL_MEMBER_FUNCTION(*this, m_OpcodesPrefixCb[opcode])();
+        cycles = CALL_MEMBER_FUNCTION(*this, m_OpcodesPrefixCb[opcode])();
+    }
+    else
+    {
+        cycles = CALL_MEMBER_FUNCTION(*this, m_Opcodes[opcode])();
     }
 
-    return CALL_MEMBER_FUNCTION(*this, m_Opcodes[opcode])();
+    if (disableInterrupts)
+    {
+        m_AreInterruptsEnabled = false;
+        m_ShouldInterruptsBeDisabled = false;
+    }
+
+    if (enableInterrupts)
+    {
+        m_AreInterruptsEnabled = true;
+        m_ShouldInterruptsBeEnabled = false;
+    }
+
+    return cycles;
 }
 
 int CPU::nop()
@@ -1003,6 +1091,506 @@ int CPU::cp_mem_hl()
     return CompareReg(value) + 4;
 }
 
+int CPU::ret_nz()
+{
+    if (!GetZeroFlag())
+    {
+        unsigned char P, C;
+        PopShort(P, C);
+        m_PC = m_Memory.Convert2BytesToShort(P, C);
+    }
+
+    return 8;
+}
+
+int CPU::pop_bc()
+{
+    PopShort(m_B, m_C);
+    return 12;
+}
+
+int CPU::jp_nz_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (!GetZeroFlag())
+    {
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::jp_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+
+    return 12;
+}
+
+int CPU::call_nz_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (!GetZeroFlag())
+    {
+        unsigned char P, C;
+        m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+        PushShort(P, C);
+
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::push_bc()
+{
+    PushShort(m_B, m_C);
+    return 16;
+}
+
+int CPU::add_a_d8()
+{
+    unsigned char d8;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    AddByteToByte(d8, m_A);
+
+    return 8;
+}
+
+int CPU::rst_00h()
+{
+    return Rst(0x00);
+}
+
+int CPU::ret_z()
+{
+    if (GetZeroFlag())
+    {
+        unsigned char P, C;
+        PopShort(P, C);
+        m_PC = m_Memory.Convert2BytesToShort(P, C);
+    }
+
+    return 8;
+}
+
+int CPU::ret()
+{
+    unsigned char P, C;
+    PopShort(P, C);
+    m_PC = m_Memory.Convert2BytesToShort(P, C);
+
+    return 8;
+}
+
+int CPU::jp_z_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (GetZeroFlag())
+    {
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::call_z_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (GetZeroFlag())
+    {
+        unsigned char P, C;
+        m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+        PushShort(P, C);
+
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::call_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    unsigned char P, C;
+    m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+    PushShort(P, C);
+
+    m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    
+    return 12;
+}
+
+int CPU::adc_a_d8()
+{
+    unsigned char d8;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    AddByteToByte(d8 + (GetCarryFlag() ? 1 : 0), m_A);
+
+    return 8;
+}
+
+int CPU::rst_08h()
+{
+    return Rst(0x08);
+}
+
+int CPU::ret_nc()
+{
+    if (!GetCarryFlag())
+    {
+        unsigned char P, C;
+        PopShort(P, C);
+        m_PC = m_Memory.Convert2BytesToShort(P, C);
+    }
+
+    return 8;
+}
+
+int CPU::pop_de()
+{
+    return PopShort(m_D, m_E);
+}
+
+int CPU::jp_nc_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (!GetCarryFlag())
+    {
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::call_nc_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (!GetCarryFlag())
+    {
+        unsigned char P, C;
+        m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+        PushShort(P, C);
+
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::push_de()
+{
+    return PushShort(m_D, m_E);
+}
+
+int CPU::sub_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return SubByteToByte(d8, m_A) + 4;
+}
+
+int CPU::rst_10h()
+{
+    return Rst(0x10);
+}
+
+int CPU::ret_c()
+{
+    if (GetCarryFlag())
+    {
+        unsigned char P, C;
+        PopShort(P, C);
+        m_PC = m_Memory.Convert2BytesToShort(P, C);
+    }
+
+    return 8;
+}
+
+int CPU::reti()
+{
+    unsigned char P, C;
+    PopShort(P, C);
+    m_PC = m_Memory.Convert2BytesToShort(P, C);
+
+    m_AreInterruptsEnabled = true;
+
+    return 8;
+}
+
+int CPU::jp_c_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (GetCarryFlag())
+    {
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::call_c_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    if (GetCarryFlag())
+    {
+        unsigned char P, C;
+        m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+        PushShort(P, C);
+
+        m_PC = m_Memory.Convert2BytesToShort(msb, lsb);
+    }
+
+    return 12;
+}
+
+int CPU::sbc_a_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return SubByteToByte(d8 + (GetCarryFlag() ? 1 : 0), m_A) + 4;
+}
+
+int CPU::rst_18h()
+{
+    return Rst(0x18);
+}
+
+int CPU::ldh_mem_a8_a()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    m_Memory.WriteByteToAddress(0xFF00 + d8, m_A);
+
+    return 12;
+}
+
+int CPU::pop_hl()
+{
+    return PopShort(m_H, m_L);
+}
+
+int CPU::ld_mem_c_a()
+{
+    m_Memory.WriteByteToAddress(0xFF00 + m_C, m_A);
+    return 8;
+}
+
+int CPU::push_hl()
+{
+    return PushShort(m_H, m_L);
+}
+
+int CPU::and_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return AndReg(d8) + 4;
+}
+
+int CPU::rst_20h()
+{
+    return Rst(0x20);
+}
+
+int CPU::add_sp_r8()
+{
+    unsigned char r8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, r8);
+
+    unsigned short newValue = m_SP + (unsigned short)r8;
+
+    SetZeroFlag(false);
+    SetSubtractFlag(false);
+    SetHalfCarryFlag( IsCarryForBit(m_SP, r8, 0x1000) );
+    SetHalfCarryFlag( IsCarryForBit(m_SP, r8, 0x8000) );
+
+    m_SP = newValue;
+
+    return 16;
+}
+
+int CPU::jp_mem_hl()
+{
+    unsigned short HL = m_Memory.Convert2BytesToShort(m_H, m_L);
+    unsigned char P, C;
+    m_Memory.Read1ByteFromMem(HL, C);
+    P = 0;
+
+    m_PC = m_Memory.Convert2BytesToShort(P, C);
+
+    return 4;
+}
+
+int CPU::ld_mem_a16_a()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    unsigned short a16 = m_Memory.Convert2BytesToShort(msb, lsb);
+
+    m_Memory.WriteByteToAddress(a16, m_A);
+
+    return 16;
+}
+
+int CPU::xor_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return XorReg(d8) + 4;
+}
+
+int CPU::rst_28h()
+{
+    return Rst(0x28);
+}
+
+int CPU::ldh_a_mem_a8()
+{
+    unsigned char a8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, a8);
+    m_PC += 1;
+
+    m_Memory.Read1ByteFromMem(0xFF00 + a8, m_A);
+
+    return 12;
+}
+
+int CPU::pop_af()
+{
+    return PopShort(m_A, m_F);
+}
+
+int CPU::ld_a_mem_c()
+{
+    m_Memory.Read1ByteFromMem(0xFF00 + m_C, m_A);
+    return 8;
+}
+
+int CPU::di()
+{
+    m_ShouldInterruptsBeDisabled = true;
+    return 4;
+}
+
+int CPU::push_af()
+{
+    return PushShort(m_A, m_F);
+}
+
+int CPU::or_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return OrReg(d8) + 4;
+}
+
+int CPU::rst_30h()
+{
+    return Rst(0x30);
+}
+
+int CPU::ld_hl_sp_r8()
+{
+    unsigned char r8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, r8);
+    m_PC += 1;
+
+    m_Memory.ConvertShortTo2Bytes(m_SP + (unsigned char)r8, m_H, m_L);
+
+    SetZeroFlag(false);
+    SetSubtractFlag(false);
+
+    return 12;    
+}
+
+int CPU::ld_sp_hl()
+{
+    m_SP = m_Memory.Convert2BytesToShort(m_H, m_L);
+    return 8;
+}
+
+int CPU::ld_a_mem_a16()
+{
+    unsigned char msb, lsb;
+    m_Memory.Read2BytesFromMem(m_PC, msb, lsb);
+    m_PC += 2;
+
+    unsigned short a16 = m_Memory.Convert2BytesToShort(msb, lsb);
+    m_Memory.Read1ByteFromMem(a16, m_A);
+
+    return 16;
+}
+
+int CPU::ei()
+{
+    m_ShouldInterruptsBeEnabled = true;
+    return 4;
+}
+
+int CPU::cp_d8()
+{
+    unsigned char d8 = 0;
+    m_Memory.Read1ByteFromMem(m_PC, d8);
+    m_PC += 1;
+
+    return CompareReg(d8) + 4;
+}
+
+int CPU::rst_38h()
+{
+    return Rst(0x38);
+}
+
 void CPU::SetZeroFlag(bool value)
 {
     if (value)
@@ -1281,6 +1869,37 @@ int CPU::LoadD16InReg(unsigned char& msb, unsigned char& lsb)
     m_Memory.Read2BytesFromMem(m_PC, lsb, msb);
     m_PC += 2;
     return 12;
+}
+
+int CPU::PushShort(unsigned char msb, unsigned char lsb)
+{
+    m_SP -= 1;
+    m_Memory.WriteByteToAddress(m_SP, msb);
+    m_SP -= 1;
+    m_Memory.WriteByteToAddress(m_SP, lsb);
+
+    return 16;
+}
+
+int CPU::PopShort(unsigned char& msb, unsigned char& lsb)
+{
+    m_Memory.Read1ByteFromMem(m_SP, lsb);
+    m_SP += 1;
+    m_Memory.Read1ByteFromMem(m_SP, msb);
+    m_SP += 1;
+
+    return 12;
+}
+
+int CPU::Rst(int n)
+{
+    unsigned char P, C;
+    m_Memory.ConvertShortTo2Bytes(m_PC, P, C);
+    PushShort(P, C);
+
+    m_PC = n;
+
+    return 32;
 }
 
 }
