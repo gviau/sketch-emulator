@@ -8,10 +8,10 @@ namespace SketchEmulator {
 class CPU
 {
 public:
-    CPU();
+    CPU(Memory& memory);
 
-    void Initialize();
-    int Step();
+    void Initialize(const CartridgeInfo_t& cartridgeInfo);
+    int Step(bool debug=false);
 
     bool IsCPUStopped() const { return m_IsCPUStopped; }
     bool IsHalted() const { return m_IsHalted; }
@@ -20,7 +20,7 @@ public:
 private:
     typedef int (CPU::*Instruction) ();
 
-    Memory m_Memory;
+    Memory& m_Memory;
 
     // Registers
     unsigned char m_A;

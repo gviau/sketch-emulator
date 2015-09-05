@@ -1,12 +1,276 @@
 #include "CPU.h"
 
+#include <iostream>
+#include <string>
+using namespace std;
+
 namespace SketchEmulator {
 
 // From https://isocpp.org/wiki/faq/pointers-to-members#macro-for-ptr-to-memfn
 #define CALL_MEMBER_FUNCTION(object, ptrToMember) ((object).*(ptrToMember))
 
-CPU::CPU()
-    : m_A(0)
+string opcodeNames[] = {
+	"NOP",
+	"LD  BC,(a16)",
+	"LD  (BC),A",
+	"INC  BC",
+	"INC  B",
+	"DEC  B",
+	"LD  B,n",
+	"RLCA",
+	"LD  (a16),SP",
+	"ADD  HL,BC",
+	"LD  A,(BC)",
+	"DEC  BC",
+	"INC  C",
+	"DEC  C",
+	"LD  C,n",
+	"RRCA",
+	"STOP",
+	"LD  DE,(a16)",
+	"LD  (DE),A",
+	"INC  DE",
+	"INC  D",
+	"DEC  D",
+	"LD  D,n",
+	"RLA",
+	"JR  r8",
+	"ADD  HL,DE",
+	"LD  A,(DE)",
+	"DEC  DE",
+	"INC  E",
+	"DEC  E",
+	"LD E,n",
+	"RRA",
+	"JR  NZ,r8",
+	"LD  HL,d16",
+	"LD  (HL+),A",
+	"INC  HL",
+	"INC  H",
+	"DEC  H",
+	"LD H,n",
+	"DAA",
+	"JR  Z,r8",
+	"ADD  HL,HL",
+	"LD  A,(HL+)",
+	"DEC  HL",
+	"INC  L",
+	"DEC  L",
+	"LD L,n",
+	"CPL",
+	"JR  NC,r8",
+	"LD SP, d16",
+	"LD  (HL-),A",
+	"INC  SP",
+	"INC  (HL)",
+	"DEC  (HL)",
+	"LD  (HL),d8",
+	"SCF",
+	"JR  C,r8",
+	"ADD  HL,SP",
+	"LD  A,(HL-)",
+	"DEC  SP",
+	"INC  A",
+	"DEC  A",
+	"LD  A,d8",
+	"CCF",
+	"LD  B,B",
+	"LD  B,C",
+	"LD  B,D",
+	"LD  B,E",
+	"LD  B,H",
+	"LD  B,L",
+	"LD  B,(HL)",
+	"LD  B,A",
+	"LD  C,B",
+	"LD  C,C",
+	"LD  C,D",
+	"LD  C,E",
+	"LD  C,H",
+	"LD  C,L",
+	"LD  C,(HL)",
+	"LD  C,A",
+	"LD  D,B",
+	"LD  D,C",
+	"LD  D,D",
+	"LD  D,E",
+	"LD  D,H",
+	"LD  D,L",
+	"LD  D,(HL)",
+	"LD  D,A",
+	"LD  E,B",
+	"LD  E,C",
+	"LD  E,D",
+	"LD  E,E",
+	"LD  E,H",
+	"LD  E,L",
+	"LD  E,(HL)",
+	"LD  E,A",
+	"LD  H,B",
+	"LD  H,C",
+	"LD  H,D",
+	"LD  H,E",
+	"LD  H,H",
+	"LD  H,L",
+	"LD  H,(HL)",
+	"LD  H,A",
+	"LD  L,B",
+	"LD  L,C",
+	"LD  L,D",
+	"LD  L,E",
+	"LD  L,H",
+	"LD  L,L",
+	"LD  L,(HL)",
+	"LD  L,A",
+	"LD  (HL),B",
+	"LD  (HL),C",
+	"LD  (HL),D",
+	"LD  (HL),E",
+	"LD  (HL),H",
+	"LD  (HL),L",
+	"HALT",
+	"LD  (HL),A",
+	"LD  A,B",
+	"LD  A,C",
+	"LD  A,D",
+	"LD  A,E",
+	"LD  A,H",
+	"LD  A,L",
+	"LD  A,(HL)",
+	"LD  A,A",
+	"ADD  A,B",
+	"ADD  A,C",
+	"ADD  A,D",
+	"ADD  A,E",
+	"ADD  A,H",
+	"ADD  A,L",
+	"ADD  A,(HL)",
+	"ADD  A,A",
+	"ADC  A,B",
+	"ADC  A,C",
+	"ADC  A,D",
+	"ADC  A,E",
+	"ADC  A,H",
+	"ADC  A,L",
+	"ADC  A,(HL)",
+	"ADC  A,A",
+	"SUB  B",
+	"SUB  C",
+	"SUB  D",
+	"SUB  E",
+	"SUB  H",
+	"SUB  L",
+	"SUB  (HL)",
+	"SUB  A",
+	"SBC  A,B",
+	"SBC  A,C",
+	"SBC  A,D",
+	"SBC  A,E",
+	"SBC  A,H",
+	"SBC  A,L",
+	"SBC  A,(HL)",
+	"SBC  A,A",
+	"AND  B",
+	"AND  C",
+	"AND  D",
+	"AND  E",
+	"AND  H",
+	"AND  L",
+	"AND  (HL)",
+	"AND  A",
+	"XOR  B",
+	"XOR  C",
+	"XOR  D",
+	"XOR  E",
+	"XOR  H",
+	"XOR  L",
+	"XOR  (HL)",
+	"XOR  A",
+	"OR  B",
+	"OR  C",
+	"OR  D",
+	"OR  E",
+	"OR  H",
+	"OR  L",
+	"OR  (HL)",
+	"OR  A",
+	"CP  B",
+	"CP  C",
+	"CP  D",
+	"CP  E",
+	"CP  H",
+	"CP  L",
+	"CP  (HL)",
+	"CP  A",
+	"RET NZ",
+	"POP  BC",
+	"JP  NZ,a16",
+	"JP  a16",
+	"CALL  NZ,a16",
+	"PUSH BC",
+	"ADD  A,d8",
+	"RST 0x00",
+	"RET Z",
+	"RET",
+	"JP  Z,a16",
+    "",
+	"CALL  Z,a16",
+	"CALL a16",
+	"ADC  A,d8",
+	"RST 0x08",
+	"RET NC",
+	"POP  DE",
+	"JP  NC,a16",
+    "",
+	"CALL  NC,a16",
+	"PUSH DE",
+	"SUB  d8",
+	"RST 0x10",
+	"RET C",
+	"RETI",
+	"JP  C,a16",
+    "",
+	"CALL  C,a16",
+    "",
+	"SBC  A,d8",
+	"RST  0x18",
+	"LDH  (a8),A",
+	"POP  HL",
+	"LD  (C),A",
+    "",
+    "",
+	"PUSH HL",
+	"AND  d8",
+	"RST 0x20",
+	"ADD  SP,r8",
+	"JP  (HL)",
+	"LD  (a16),A",
+    "",
+    "",
+    "",
+	"XOR  d8",
+	"RST 0x28",
+	"LDH  A,(a8)",
+	"POP  AF",
+	"LD  A,(C)",
+	"DI",
+    "",
+	"PUSH AF",
+	"OR  d8",
+	"RST 0x30",
+	"LD  HL,SP+r8",
+	"LD  SP,HL",
+	"LD  A,(a16)",
+	"EI",
+    "",
+    "",
+	"CP  d8",
+	"RST 0x38",
+};
+
+CPU::CPU(Memory& memory)
+    : m_Memory(memory)
+    , m_A(0)
     , m_B(0)
     , m_C(0)
     , m_D(0)
@@ -555,12 +819,59 @@ CPU::CPU()
     m_OpcodesPrefixCb[0xFF] = &CPU::set_7_a;
 }
 
-void CPU::Initialize()
+void CPU::Initialize(const CartridgeInfo_t& cartridgeInfo)
 {
-    m_Memory.Initialize();
+    if (cartridgeInfo.m_GameboyColor)
+    {
+        m_A = 0x11;
+    }
+    else
+    {
+        m_A = 0x01;
+    }
+
+    m_F = 0xB0;
+    m_C = 0x13;
+    m_E = 0xD8;
+    m_H = 0x01;
+    m_L = 0x4D;
+    m_SP = 0xFFFE;
+    m_PC = 0x100;
+
+    m_Memory.WriteByteToAddress(0xFF05, 0x00);
+    m_Memory.WriteByteToAddress(0xFF06, 0x00);
+    m_Memory.WriteByteToAddress(0xFF07, 0x00);
+    m_Memory.WriteByteToAddress(0xFF10, 0x80);
+    m_Memory.WriteByteToAddress(0xFF11, 0xBF);
+    m_Memory.WriteByteToAddress(0xFF12, 0xF3);
+    m_Memory.WriteByteToAddress(0xFF14, 0xBF);
+    m_Memory.WriteByteToAddress(0xFF16, 0x3F);
+    m_Memory.WriteByteToAddress(0xFF17, 0x00);
+    m_Memory.WriteByteToAddress(0xFF19, 0xBF);
+    m_Memory.WriteByteToAddress(0xFF1A, 0x7F);
+    m_Memory.WriteByteToAddress(0xFF1B, 0xFF);
+    m_Memory.WriteByteToAddress(0xFF1C, 0x9F);
+    m_Memory.WriteByteToAddress(0xFF1E, 0xBF);
+    m_Memory.WriteByteToAddress(0xFF20, 0xFF);
+    m_Memory.WriteByteToAddress(0xFF21, 0x00);
+    m_Memory.WriteByteToAddress(0xFF22, 0x00);
+    m_Memory.WriteByteToAddress(0xFF23, 0xBF);
+    m_Memory.WriteByteToAddress(0xFF24, 0x77);
+    m_Memory.WriteByteToAddress(0xFF25, 0xF3);
+    m_Memory.WriteByteToAddress(0xFF26, 0xF1);
+    m_Memory.WriteByteToAddress(0xFF40, 0x91);
+    m_Memory.WriteByteToAddress(0xFF42, 0x00);
+    m_Memory.WriteByteToAddress(0xFF43, 0x00);
+    m_Memory.WriteByteToAddress(0xFF45, 0x00);
+    m_Memory.WriteByteToAddress(0xFF47, 0xFC);
+    m_Memory.WriteByteToAddress(0xFF48, 0xFF);
+    m_Memory.WriteByteToAddress(0xFF49, 0xFF);
+    m_Memory.WriteByteToAddress(0xFF4A, 0x00);
+    m_Memory.WriteByteToAddress(0xFF4B, 0x00);
+    m_Memory.WriteByteToAddress(0xFFFF, 0x00);
 }
 
-int CPU::Step()
+int CPU::Step(bool debug)
 {
     bool disableInterrupts = false;
     if (m_ShouldInterruptsBeDisabled)
@@ -572,6 +883,55 @@ int CPU::Step()
     if (m_ShouldInterruptsBeEnabled)
     {
         enableInterrupts = true;
+    }
+
+    if (debug)
+    {
+        unsigned char opcode = 0;
+        m_Memory.Read1ByteFromMem(m_PC, opcode);
+        if (opcode == 0xCB)
+        {
+            m_Memory.Read1ByteFromMem(m_PC, opcode);
+
+            
+        }
+        else
+        {
+            cout << "[" << hex << m_PC << dec << "] " << opcodeNames[opcode] << endl;
+
+            string line;
+            do {
+                cout << ">";
+                getline(cin, line);
+                if (line == "show regs")
+                {
+                    int zeroFlag = (GetZeroFlag() ? 1 : 0);
+                    int subtractFlag = (GetSubtractFlag() ? 1 : 0);
+                    int halfCarryFlag = (GetHalfCarryFlag() ? 1 : 0);
+                    int carryFlag = (GetCarryFlag() ? 1 : 0);
+
+                    cout << "A=" << hex << (int)m_A << "\tF=" << hex << (int)m_F << "\t( Z=" << zeroFlag << " S=" << subtractFlag << " H=" << halfCarryFlag << " C=" << carryFlag << " )" << endl;
+                    cout << "B=" << hex << (int)m_B << "\tC=" << hex << (int)m_C << endl;
+                    cout << "D=" << hex << (int)m_D << "\tE=" << hex << (int)m_E << endl;
+                    cout << "H=" << hex << (int)m_H << "\tL=" << hex << (int)m_L << endl;
+                    cout << "PC=" << hex << (int)m_PC <<endl;
+                    cout << "SP=" << hex << (int)m_SP << endl;
+                }
+                else if (line.find("0x") != string::npos)
+                {
+                    unsigned short address = atoi(line.c_str());
+                    unsigned char byte;
+                    m_Memory.Read1ByteFromMem(address, byte);
+
+                    cout << hex << (int)byte << endl;
+                }
+                else if (line != "c" && line != "")
+                {
+                    cout << "Couldn't understand this command!" << endl;
+                }
+
+            } while(line != "c" && line != "");
+        }
     }
 
     unsigned char opcode = 0;
@@ -749,7 +1109,16 @@ int CPU::jr_r8()
     unsigned char r8;
     m_Memory.Read1ByteFromMem(m_PC, r8);
     m_PC += 1;
-    m_PC += r8;
+
+    if ( (r8 & 0x80) > 0)
+    {
+        r8 &= ~0x80;
+        m_PC -= r8;
+    }
+    else
+    {
+        m_PC += r8;
+    }
 
     return 8;
 }
@@ -799,7 +1168,15 @@ int CPU::jr_nz_r8()
 
     if (!GetZeroFlag())
     {
-        m_PC += r8;
+        if ( (r8 & 0x80) > 0)
+        {
+            r8 &= ~0x80;
+            m_PC -= r8;
+        }
+        else
+        {
+            m_PC += r8;
+        }
     }
 
     return 8;
@@ -853,7 +1230,15 @@ int CPU::jr_z_r8()
 
     if (GetZeroFlag())
     {
-        m_PC += r8;
+        if ( (r8 & 0x80) > 0)
+        {
+            r8 &= ~0x80;
+            m_PC -= r8;
+        }
+        else
+        {
+            m_PC += r8;
+        }
     }
 
     return 8;
@@ -918,7 +1303,15 @@ int CPU::jr_nc_r8()
 
     if (!GetCarryFlag())
     {
-        m_PC += r8;
+        if ( (r8 & 0x80) > 0)
+        {
+            r8 &= ~0x80;
+            m_PC -= r8;
+        }
+        else
+        {
+            m_PC += r8;
+        }
     }
 
     return 8;
@@ -1009,7 +1402,15 @@ int CPU::jr_c_r8()
 
     if (GetCarryFlag())
     {
-        m_PC += r8;
+        if ( (r8 & 0x80) > 0)
+        {
+            r8 &= ~0x80;
+            m_PC -= r8;
+        }
+        else
+        {
+            m_PC += r8;
+        }
     }
 
     return 8;
