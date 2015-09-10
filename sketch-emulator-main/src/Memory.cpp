@@ -116,6 +116,16 @@ void Memory::ConvertShortTo2Bytes(unsigned short value, unsigned char& msb, unsi
     msb = (unsigned char)( (value & 0xFF00) >> 8);
 }
 
+unsigned char* Memory::GetRaisedInterruptsRegister()
+{
+    return &m_IOPorts[0x0F];
+}
+
+unsigned char* Memory::GetInterruptEnableRegister()
+{
+    return &m_InterruptEnableRegister;
+}
+
 unsigned char* Memory::GetMemBankFromAddress(unsigned short address, unsigned short& relativeAddress) const
 {
     if (address < 0x4000)

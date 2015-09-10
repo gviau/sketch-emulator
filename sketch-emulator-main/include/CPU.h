@@ -1,14 +1,17 @@
 #ifndef SKETCH_EMULATOR_CPU_H
 #define SKETCH_EMULATOR_CPU_H
 
+#include "InterruptsHandler.h"
 #include "Memory.h"
 
 namespace SketchEmulator {
 
 class CPU
 {
+    friend class InterruptsHandler;
+
 public:
-    CPU(Memory& memory);
+    CPU(Memory& memory, InterruptsHandler& interruptsHandler);
 
     void Initialize(const CartridgeInfo_t& cartridgeInfo);
     int Step(bool debug=false);
@@ -21,6 +24,7 @@ private:
     typedef int (CPU::*Instruction) ();
 
     Memory& m_Memory;
+    InterruptsHandler& m_InterruptsHandler;
 
     // Registers
     unsigned char m_A;

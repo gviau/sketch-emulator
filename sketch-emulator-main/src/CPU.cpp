@@ -268,8 +268,9 @@ string opcodeNames[] = {
 	"RST 0x38",
 };
 
-CPU::CPU(Memory& memory)
+CPU::CPU(Memory& memory, InterruptsHandler& interruptsHandler)
     : m_Memory(memory)
+    , m_InterruptsHandler(interruptsHandler)
     , m_A(0)
     , m_B(0)
     , m_C(0)
@@ -883,6 +884,15 @@ int CPU::Step(bool debug)
     if (m_ShouldInterruptsBeEnabled)
     {
         enableInterrupts = true;
+    }
+
+    if (m_AreInterruptsEnabled)
+    {
+        InterruptType_t type = m_InterruptsHandler.GetInterruptToHandle();
+        if (type != InterruptType_t::NO_INTERRUPTS)
+        {
+            m_InterruptsHandler.HandleInterrupt(type, this);
+        }
     }
 
     if (debug)

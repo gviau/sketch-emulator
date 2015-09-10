@@ -66,6 +66,9 @@ public:
     unsigned short Convert2BytesToShort(unsigned char msb, unsigned char lsb) const;
     void ConvertShortTo2Bytes(unsigned short value, unsigned char& msb, unsigned char& lsb) const;
 
+    unsigned char* GetRaisedInterruptsRegister();
+    unsigned char* GetInterruptEnableRegister();
+
 private:
     CartridgeType_t m_CartridgeType;
     unsigned char   m_NumberOfRomBanks;

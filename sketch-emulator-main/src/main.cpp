@@ -1,4 +1,5 @@
 #include "CPU.h"
+#include "InterruptsHandler.h"
 #include "Memory.h"
 using namespace SketchEmulator;
 
@@ -43,7 +44,10 @@ int main(int argc, char** argv)
     Memory memory;
     memory.Initialize(romContent, cartridgeInfo);
 
-    CPU cpu(memory);
+    InterruptsHandler interruptsHandler;
+    interruptsHandler.Initialize(memory);
+
+    CPU cpu(memory, interruptsHandler);
     cpu.Initialize(cartridgeInfo);
 
     while (true)
