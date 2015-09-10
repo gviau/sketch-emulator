@@ -7,6 +7,7 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/lib/")
 set (SOURCE_FILES
 	src/main.cpp
 	src/CPU.cpp
+	src/CPU_opcodes.cpp
 	src/InterruptsHandler.cpp
 	src/Memory.cpp
 )
